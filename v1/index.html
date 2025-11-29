@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TETRIS</title>
+	<script src="js/application.js"></script>
+	<script src="js/renderEngine.js"></script>
+	<script src="js/gameBoard.js"></script>
+	<script src="js/util.js"></script>
+	<script>
+		window.onload = function() {
+			Application.start("gameCanvas");
+		};
+	</script>
+</head>
+<body>
+	<div style="text-align:center;padding-top:10px;">
+		<canvas id="gameCanvas" width="300" height="500">
+			<p>your browser doesn't support canvas</p>
+		</canvas>
+		<br />
+		Press space to rotate and arrow keys to move.
+	</div>
+</body>
+</html>
