@@ -6,12 +6,14 @@
     "configurations": [
 
         {
-            "name": "Launch",
+            "name": "Debug Server",
             "type": "lldb",
             "request": "launch",
             "program": "${workspaceRoot}/webserver/target/debug/webserver",
             "args": [],
-            "cwd": "${workspaceRoot}/webserver"
+            "cwd": "${workspaceRoot}/webserver",
+            "preLaunchTask": "debug build server",
+            "stopOnEntry": false
         }
     ]
 }

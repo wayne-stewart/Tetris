@@ -1,5 +1,10 @@
 use std::{
-    fs::File, io::{Read, Write}, net::{TcpListener, TcpStream}, path::PathBuf, thread::spawn, time::Duration
+    fs::File,
+    io::{Read, Write},
+    net::{TcpListener, TcpStream},
+    path::PathBuf,
+    thread::spawn,
+    time::Duration,
 };
 
 const WWWROOT: &str = "../";
@@ -26,16 +31,20 @@ fn main() -> std::io::Result<()> {
     for (client_id, stream) in listener.incoming().enumerate() {
         spawn(move || {
             match stream {
-                Err(e) => { log_error(format!("conn id: {}, new stream failed, {:?}", client_id, e).as_str()); },
+                Err(e) => {
+                    log_error(
+                        format!("conn id: {}, new stream failed, {:?}", client_id, e).as_str(),
+                    );
+                }
                 Ok(stream) => {
-                    let client = ClientConnection { 
-                        stream, 
+                    let client = ClientConnection {
+                        stream,
                         keep_alive: true,
                         id: client_id,
                         request_count: 0,
                     };
                     handle_client(client);
-                },
+                }
             };
         });
     }
@@ -43,7 +52,10 @@ fn main() -> std::io::Result<()> {
 }
 
 fn handle_client(mut client: ClientConnection) {
-    client.stream.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+    client
+        .stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .unwrap();
     while client.keep_alive {
         client.request_count += 1;
         if let Err(e) = handle_request(&mut client) {
@@ -82,8 +94,7 @@ fn handle_request(client: &mut ClientConnection) -> std::io::Result<()> {
     };
     if http_context.verb.eq("GET") {
         handle_static_file(&mut http_context)?;
-    }
-    else {
+    } else {
         send_405(&mut http_context)?
     }
     log_request(&http_context);
@@ -94,8 +105,12 @@ fn handle_static_file(http_context: &mut HttpContext) -> std::io::Result<()> {
     let mut path_buf = PathBuf::from(WWWROOT);
     path_buf.push(http_context.path.trim_start_matches('/'));
     match File::open(path_buf) {
-        Ok(file) => { send_file(http_context, file)?; },
-        Err(_) => { send_404(http_context)?; }
+        Ok(file) => {
+            send_file(http_context, file)?;
+        }
+        Err(_) => {
+            send_404(http_context)?;
+        }
     };
     Ok(())
 }
@@ -124,22 +139,37 @@ fn send_400(http_context: &mut HttpContext, msg: &str) -> std::io::Result<()> {
 
 fn send_404(http_context: &mut HttpContext) -> std::io::Result<()> {
     http_context.status = 404;
-    send_message(&http_context.client.stream, 404, "Not Found", "Resource Not Found")
+    send_message(
+        &http_context.client.stream,
+        404,
+        "Not Found",
+        "Resource Not Found",
+    )
 }
 
 fn send_405(http_context: &mut HttpContext) -> std::io::Result<()> {
     http_context.status = 405;
-    send_message(&http_context.client.stream, 405, "Method Not Allowed", "Method Not Allowed")
+    send_message(
+        &http_context.client.stream,
+        405,
+        "Method Not Allowed",
+        "Method Not Allowed",
+    )
 }
 
-fn send_message(mut stream: &TcpStream, status_code: u16, status_msg: &str, msg: &str) -> std::io::Result<()> {
+fn send_message(
+    mut stream: &TcpStream,
+    status_code: u16,
+    status_msg: &str,
+    msg: &str,
+) -> std::io::Result<()> {
     stream.write_all(format!("HTTP/1.1 {} {}\r\n", status_code, status_msg).as_bytes())?;
     stream.write_all(b"Content-Type: text/html\r\n")?;
     stream.write_all(format!("Content-Length: {}\r\n\r\n{}", msg.len(), msg).as_bytes())?;
     Ok(())
 }
 
-fn _echo_client(mut stream: TcpStream ) -> std::io::Result<()> {
+fn _echo_client(mut stream: TcpStream) -> std::io::Result<()> {
     let mut buf: [u8; 4096] = [0; 4096];
     let bytes_read = stream.read(&mut buf)?;
     println!("{}", bytes_read);
@@ -172,9 +202,8 @@ fn _log_debug(msg: &str) {
     println!("DEBUG: {}", msg);
 }
 fn log_request(ctx: &HttpContext) {
-    println!("{} {} {} {}", 
-        ctx.client.id, 
-        ctx.client.request_count, 
-        ctx.status, 
-        ctx.path_and_query);
+    println!(
+        "{} {} {} {}",
+        ctx.client.id, ctx.client.request_count, ctx.status, ctx.path_and_query
+    );
 }
