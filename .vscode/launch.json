@@ -9,9 +9,9 @@
             "name": "Launch",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceRoot}/dev-server/target/debug/webserver",
+            "program": "${workspaceRoot}/webserver/target/debug/webserver",
             "args": [],
-            "cwd": "${workspaceRoot}/dev-server"
+            "cwd": "${workspaceRoot}/webserver"
         }
     ]
 }
