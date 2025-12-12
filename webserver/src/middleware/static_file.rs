@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::path::PathBuf;
 
-use crate::server::Middleware;
 use crate::server::HttpContext;
+use crate::server::Middleware;
 
 pub struct StaticFileMiddlware<'a> {
     pub wwwroot: &'a str,
@@ -35,14 +35,12 @@ impl Middleware for StaticFileMiddlware<'_> {
             crate::http::send_405(context)?
         }
 
-        if let Some(next) = &self.next {
-            if context.status == 0 {
-                next.run(context)?;
-            }
+        if let Some(next) = &self.next
+            && context.status == 0
+        {
+            next.run(context)?;
         }
         //println!("static file middleware POST");
         Ok(())
     }
 }
-
-

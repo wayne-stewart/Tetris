@@ -1,4 +1,3 @@
-
 pub fn log_error(msg: &str) {
     println!("ERROR: {}", msg);
 }

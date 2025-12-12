@@ -1,11 +1,10 @@
 use std::{
     fs::File,
     io::{Read, Write},
-    net::{TcpStream},
+    net::TcpStream,
 };
 
 use crate::server::HttpContext;
-
 
 pub fn send_file(http_context: &mut HttpContext, mut file: File) -> std::io::Result<()> {
     let mut stream = &http_context.client.stream;
@@ -86,4 +85,3 @@ pub fn content_type_from_path_extension(path: &str) -> Option<&str> {
         None
     }
 }
-

@@ -1,9 +1,8 @@
-
+use crate::log::*;
+use std::io::Read;
 use std::net::TcpListener;
 use std::thread::spawn;
 use std::time::Duration;
-use std::io::Read;
-use crate::log::*;
 
 pub struct ClientConnection {
     pub stream: std::net::TcpStream,
@@ -23,7 +22,6 @@ pub struct HttpContext<'a> {
     pub writebuf: [u8; 4096],
 }
 
-
 pub struct Server {
     pub middleware: Option<std::sync::Arc<dyn Middleware + Sync + Send>>,
 }
@@ -33,7 +31,7 @@ pub trait Middleware {
 }
 
 impl Server {
-    pub fn start(&self, http_addr: &str) -> std::io::Result<()>{
+    pub fn start(&self, http_addr: &str) -> std::io::Result<()> {
         if let Some(m) = &self.middleware {
             let listener = TcpListener::bind(http_addr)?;
             for (client_id, stream) in listener.incoming().enumerate() {
@@ -42,7 +40,8 @@ impl Server {
                     match stream {
                         Err(e) => {
                             log_error(
-                                format!("conn id: {}, new stream failed, {:?}", client_id, e).as_str(),
+                                format!("conn id: {}, new stream failed, {:?}", client_id, e)
+                                    .as_str(),
                             );
                         }
                         Ok(stream) => {
@@ -80,7 +79,10 @@ fn handle_client(middleware: &dyn Middleware, mut client: ClientConnection) {
     }
 }
 
-fn handle_request(middleware: &dyn Middleware, client: &mut ClientConnection) -> std::io::Result<()> {
+fn handle_request(
+    middleware: &dyn Middleware,
+    client: &mut ClientConnection,
+) -> std::io::Result<()> {
     let mut readbuf: [u8; 4096] = [0; 4096];
     //let mut readbuf = Vec::with_capacity(4096);
     let bytes_read = client.stream.read(&mut readbuf).unwrap_or_default();
@@ -105,9 +107,9 @@ fn handle_request(middleware: &dyn Middleware, client: &mut ClientConnection) ->
         path,
         _query: query,
         status: 0,
-        readbuf: readbuf,
+        readbuf,
         writebuf: [0; 4096],
     };
-    middleware.run(&mut http_context);
+    middleware.run(&mut http_context)?;
     Ok(())
 }
