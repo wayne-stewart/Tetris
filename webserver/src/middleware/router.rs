@@ -7,13 +7,11 @@ pub struct RouterMiddleware {
 
 impl Middleware for RouterMiddleware {
     fn run(&self, context: &mut HttpContext) -> std::io::Result<()> {
-        println!("router middleware PRE");
         if let Some(next) = &self.next
             && context.status == 0
         {
             next.run(context)?;
         }
-        println!("router middleware POST");
         Ok(())
     }
 }

@@ -27,7 +27,6 @@ impl StaticFileMiddlware<'_> {
 
 impl Middleware for StaticFileMiddlware<'_> {
     fn run(&self, context: &mut HttpContext) -> std::io::Result<()> {
-        //println!("static file middleware PRE");
 
         if context.verb.eq("GET") {
             self.handle_static_file(context)?;
@@ -40,7 +39,7 @@ impl Middleware for StaticFileMiddlware<'_> {
         {
             next.run(context)?;
         }
-        //println!("static file middleware POST");
+        
         Ok(())
     }
 }
