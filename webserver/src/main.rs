@@ -6,7 +6,7 @@ use webserver::{
 const WWWROOT: &str = "../";
 const WWWHOST: &str = "0.0.0.0:8080";
 
-fn main() -> std::io::Result<()> {
+fn main() -> webserver::Result<()> {
     let static_file_middleware = StaticFileMiddlware {
         wwwroot: WWWROOT,
         next: None,
