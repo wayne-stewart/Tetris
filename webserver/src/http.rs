@@ -25,12 +25,12 @@ pub fn send_file(http_context: &mut HttpContext, mut file: File) -> std::io::Res
 
 pub fn send_400(http_context: &mut HttpContext, msg: &str) -> std::io::Result<()> {
     http_context.status = 400;
-    send_message(&http_context.client.stream, 400, "Bad Request", msg)
+    send(&http_context.client.stream, 400, "Bad Request", msg)
 }
 
 pub fn send_404(http_context: &mut HttpContext) -> std::io::Result<()> {
     http_context.status = 404;
-    send_message(
+    send(
         &http_context.client.stream,
         404,
         "Not Found",
@@ -40,7 +40,7 @@ pub fn send_404(http_context: &mut HttpContext) -> std::io::Result<()> {
 
 pub fn send_405(http_context: &mut HttpContext) -> std::io::Result<()> {
     http_context.status = 405;
-    send_message(
+    send(
         &http_context.client.stream,
         405,
         "Method Not Allowed",
@@ -48,7 +48,7 @@ pub fn send_405(http_context: &mut HttpContext) -> std::io::Result<()> {
     )
 }
 
-pub fn send_message(
+pub fn send(
     mut stream: &TcpStream,
     status_code: u16,
     status_msg: &str,
@@ -60,10 +60,10 @@ pub fn send_message(
     Ok(())
 }
 
-pub fn send_echo(mut stream: TcpStream) -> std::io::Result<()> {
-    let mut buf: [u8; 4096] = [0; 4096];
-    let bytes_read = stream.read(&mut buf)?;
-    println!("{}", bytes_read);
+pub fn send_echo(context: &mut HttpContext) -> std::io::Result<()> {
+    let mut stream = &context.client.stream;
+    let bytes_read = context.readbuf_len;
+    let buf = &context.readbuf;
     stream.write_all(b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n")?;
     stream.write_all(format!("Content-Length: {}\r\n\r\n", bytes_read + 11).as_bytes())?;
     stream.write_all(b"<pre>")?;

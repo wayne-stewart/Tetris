@@ -5,6 +5,7 @@ use std::net::TcpListener;
 use std::str::Utf8Error;
 use std::thread::spawn;
 use std::time::Duration;
+use std::sync::Arc;
 
 pub struct ClientConnection {
     pub stream: std::net::TcpStream,
@@ -21,15 +22,16 @@ pub struct HttpContext<'a> {
     pub _query: &'a str,
     pub status: u16,
     pub readbuf: [u8; 4096],
+    pub readbuf_len: usize,
     pub writebuf: [u8; 4096],
 }
 
 pub struct Server {
-    pub middleware: Option<std::sync::Arc<dyn Middleware + Sync + Send>>,
+    pub middleware: Option<Arc<dyn Middleware + Sync + Send>>,
 }
 
 pub trait Middleware {
-    fn run(&self, context: &mut HttpContext) -> std::io::Result<()>;
+    fn run(&self, context: &mut HttpContext) -> Result<()>;
 }
 
 impl Server {
@@ -81,10 +83,7 @@ fn handle_client(middleware: &dyn Middleware, mut client: ClientConnection) {
     }
 }
 
-fn handle_request(
-    middleware: &dyn Middleware,
-    client: &mut ClientConnection,
-) -> Result<()> {
+fn handle_request(middleware: &dyn Middleware, client: &mut ClientConnection) -> Result<()> {
     let mut readbuf: [u8; 4096] = [0; 4096];
     
     let bytes_read = client.stream.read(&mut readbuf).unwrap_or_default();
@@ -112,6 +111,7 @@ fn handle_request(
         _query: query,
         status: 0,
         readbuf,
+        readbuf_len: bytes_read,
         writebuf: [0; 4096],
     };
 
