@@ -19,35 +19,30 @@ fn route_hello(context: &mut HttpContext) -> Result<()>{
     Ok(())
 }
 
-fn route_echo(context: &mut HttpContext) -> Result<()> {
+/*fn route_echo(context: &mut HttpContext) -> Result<()> {
     webserver::http::send_echo(context)?;
     context.status = 200;
     Ok(())
-}
+}*/
 
 fn main() -> webserver::Result<()> {
 
-    let static_file_middleware = StaticFileMiddlware {
-        wwwroot: WWWROOT,
-        next: None,
-    };
+    let static_file_middleware = StaticFileMiddlware::new(WWWROOT);
 
     let mut routes = HashMap::new();
     routes.insert("/hello", route_hello as RouteHandler);
-    routes.insert("/echo", route_echo as RouteHandler);
-    
-    let router_middleware = RouterMiddleware {
-        routes: Arc::new(routes),
-        next: Some(Box::new(static_file_middleware)),
-    };
+    //routes.insert("/echo", route_echo as RouteHandler);
 
-    let logging_middleware = RequestLoggingMiddleware {
-        next: Some(Box::new(router_middleware)),
-    };
+    let router_middleware = RouterMiddleware::new(Arc::new(routes));
 
-    let server = Server {
-        middleware: Some(std::sync::Arc::new(logging_middleware)),
-    };
+    let logging_middleware = RequestLoggingMiddleware::new();
+
+    let mut server = Server::new();
+
+    server.add_middleware(logging_middleware);
+    server.add_middleware(router_middleware);
+    server.add_middleware(static_file_middleware);
+
 
     server.start(WWWHOST)?;
 

@@ -60,7 +60,7 @@ pub fn send(
     Ok(())
 }
 
-pub fn send_echo(context: &mut HttpContext) -> std::io::Result<()> {
+/*pub fn send_echo(context: &mut HttpContext) -> std::io::Result<()> {
     let mut stream = &context.client.stream;
     let bytes_read = context.readbuf_len;
     let buf = &context.readbuf;
@@ -70,7 +70,7 @@ pub fn send_echo(context: &mut HttpContext) -> std::io::Result<()> {
     stream.write_all(&buf[..bytes_read])?;
     stream.write_all(b"</pre>")?;
     Ok(())
-}
+}*/
 
 pub fn content_type_from_path_extension(path: &str) -> Option<&str> {
     if let Some(ext_index) = path.rfind('.') {
